@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  
+ <nav>
+    <a href="/">Detail Menu</a>
+  </nav>
+
+  <div class="container">
+    <div class="card" style="max-width: 400px; margin: 0 auto;">
+      <img src="<%= item.gambar %>" alt="<%= item.nama %>" style="height: 200px;">
+      <h2><%= item.nama %></h2>
+      <p><strong>Kategori:</strong> <%= item.kategori %></p>
+      <p><strong>Harga:</strong> Rp <%= item.harga.toLocaleString('id-ID') %></p>
+      <p><%= item.deskripsi %></p>
+      <a href="/" class="btn" style="background-color: #6c757d;">← Kembali ke Katalog</a>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

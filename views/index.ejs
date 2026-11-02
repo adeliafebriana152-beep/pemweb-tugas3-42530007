@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- Menggunakan EJS Partials Include -->
+  <%- include('partials/navbar') %>
+
+  <div class="container">
+    <h1>Menu Sore di Bali cafe</h1>
+
+    <!-- Filter menggunakan Query Parameter (?kategori=...) -->
+    <div class="filter-box">
+      <span>Filter Kategori: </span>
+      <a href="/" class="<%= selectedKategori === 'semua' ? 'active' : '' %>">Semua</a>
+      <a href="/?kategori=kopi" class="<%= selectedKategori === 'kopi' ? 'active' : '' %>">Kopi</a>
+      <a href="/?kategori=non-kopi" class="<%= selectedKategori === 'non-kopi' ? 'active' : '' %>">Non-Kopi</a>
+      <a href="/?kategori=makanan" class="<%= selectedKategori === 'makanan' ? 'active' : '' %>">Makanan</a>
+    </div>
+
+    <div class="grid">
+      <% if (menus.length > 0) { %>
+        <% menus.forEach(item => { %>
+          <div class="card">
+            <img src="<%= item.gambar %>" alt="<%= item.nama %>">
+            <h3><%= item.nama %></h3>
+            <p>Rp <%= item.harga.toLocaleString('id-ID') %></p>
+            <a href="/menu/<%= item.id %>" class="btn">Lihat Detail</a>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p>Menu tidak ditemukan untuk kategori ini.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+</body>
+</html>
