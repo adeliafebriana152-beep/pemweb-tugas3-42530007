@@ -6,13 +6,16 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <!-- Menggunakan EJS Partials Include -->
   <%- include('partials/navbar') %>
 
   <div class="container">
-    <h1>Menu Sore di Bali cafe</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h1>Menu Sore di Bali Cafe</h1>
+      <!-- Tombol Tambah Menu Baru -->
+      <a href="/menu/add" class="btn" style="background-color: #28a745;">+ Tambah Menu Baru</a>
+    </div>
 
-    <!-- Filter menggunakan Query Parameter (?kategori=...) -->
+    <!-- Filter Kategori -->
     <div class="filter-box">
       <span>Filter Kategori: </span>
       <a href="/" class="<%= selectedKategori === 'semua' ? 'active' : '' %>">Semua</a>
@@ -21,6 +24,7 @@
       <a href="/?kategori=makanan" class="<%= selectedKategori === 'makanan' ? 'active' : '' %>">Makanan</a>
     </div>
 
+    <!-- Grid Kartu Menu -->
     <div class="grid">
       <% if (menus.length > 0) { %>
         <% menus.forEach(item => { %>
@@ -28,7 +32,16 @@
             <img src="<%= item.gambar %>" alt="<%= item.nama %>">
             <h3><%= item.nama %></h3>
             <p>Rp <%= item.harga.toLocaleString('id-ID') %></p>
-            <a href="/menu/<%= item.id %>" class="btn">Lihat Detail</a>
+            
+            <div style="margin-top: 10px; display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">
+              <a href="/menu/<%= item.id %>" class="btn">Detail</a>
+              <a href="/menu/edit/<%= item.id %>" class="btn" style="background-color: #ffc107; color: #000;">Edit</a>
+              
+              <!-- Form Hapus Menu (POST Method + PRG Pattern) -->
+              <form action="/menu/delete/<%= item.id %>" method="POST" style="display: inline;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus menu ini?');">
+                <button type="submit" class="btn" style="background-color: #dc3545; border: none; cursor: pointer;">Hapus</button>
+              </form>
+            </div>
           </div>
         <% }) %>
       <% } else { %>

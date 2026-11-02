@@ -1,48 +1,129 @@
-// Data Array Lokal 
-const menuData = [
-  { id: 1, nama: 'Americano', kategori: 'kopi', harga: 20000, deskripsi: 'Kopi hitam 100% murni khas Arabika Kintamani.', gambar: '/images/americano.webp' },
-  { id: 2, nama: 'Cappuccino', kategori: 'kopi', harga: 25000, deskripsi: 'Espresso disajikan dengan paduan susu dan busa tebal yang lembut.', gambar: '/images/cappucino.webp' },
-  { id: 3, nama: 'Cafe Latte', kategori: 'kopi', harga: 23000, deskripsi: 'Espresso disajikan dengan paduan susu dan busa tipis.', gambar: '/images/cafelatte.webp' },
-  { id: 4, nama: 'Matcha Latte', kategori: 'non-kopi', harga: 25000, deskripsi: 'Minuman matcha asli khas Jepang dengan rasa yang autentik.', gambar: '/images/matcha latte.webp' },
-  { id: 5, nama: 'Ube Latte', kategori: 'non-kopi', harga: 28000, deskripsi: 'Minuman ube khas Korea dengan rasa yang unik.', gambar: '/images/ubelatte.webp' },
-  { id: 6, nama: 'Chocolatte', kategori: 'non-kopi', harga: 22000, deskripsi: 'Minuman cokelat panas dengan rasa yang kaya.', gambar: '/images/chocolatte.webp' },
-  { id: 7, nama: 'Ice Tea', kategori: 'non-kopi', harga: 18000, deskripsi: 'Minuman dingin dengan rasa teh asli yang menyegarkan.', gambar: '/images/icetea.webp' },
-  { id: 8, nama: 'Choco Toast', kategori: 'makanan', harga: 25000, deskripsi: 'Roti panggang mentega dengan isian cokelat lumer.', gambar: '/images/roti bakar.webp' },
-  { id: 9, nama: 'Croissant', kategori: 'makanan', harga: 20000, deskripsi: 'Croissant lembut dengan rasa yang enak.', gambar: '/images/croissant.webp' },
-  { id: 10, nama: 'Bagel Sandwich', kategori: 'makanan', harga: 30000, deskripsi: 'Makanan yang terbuat dari bagel dengan isian daging lezat.', gambar: '/images/bagel sandwich.webp' },
-  { id: 11, nama: 'French Fries', kategori: 'makanan', harga: 18000, deskripsi: 'Kentang goreng renyah dengan rasa yang lezat.', gambar: '/images/french fries.webp' }
-]; 
+const pool = require('../config/db');
 
+// READ: Halaman Katalog (Query Parameter Handling req.query)
+exports.getMenuCatalog = async (req, res) => {
+  try {
+    const { kategori } = req.query; // Menangkap Query Parameter
+    let query = 'SELECT * FROM menu';
+    let params = [];
 
-// Halaman Katalog (Query Parameter Handling req.query)
-exports.getMenuCatalog = (req, res) => {
-  const { kategori } = req.query; // Menangkap Query Parameter
-  let filteredMenu = menuData;
+    // Menggunakan Prepared Statement jika ada filter kategori
+    if (kategori && kategori !== 'semua') {
+      query += ' WHERE kategori = ?';
+      params.push(kategori);
+    }
 
-  if (kategori) {
-    filteredMenu = menuData.filter(item => item.kategori.toLowerCase() === kategori.toLowerCase());
+    // Eksekusi query ke database via connection pool
+    const [menus] = await pool.query(query, params);
+
+    // Pengiriman data dinamis via res.render() 
+    res.render('index', {
+      title: 'Katalog Menu Kafe',
+      menus: menus,
+      selectedKategori: kategori || 'semua'
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Terjadi kesalahan pada server.');
   }
-
-  // Pengiriman data dinamis via res.render() 
-  res.render('index', {
-    title: 'Katalog Menu Kafe',
-    menus: filteredMenu,
-    selectedKategori: kategori || 'semua'
-  });
 };
 
-// Halaman Detail (Route Parameter Handling req.params)
-exports.getMenuDetail = (req, res) => {
-  const menuId = parseInt(req.params.id); // Menangkap Route Parameter
-  const menuItem = menuData.find(item => item.id === menuId);
+// READ: Halaman Detail (Route Parameter Handling req.params)
+exports.getMenuDetail = async (req, res) => {
+  try {
+    const menuId = parseInt(req.params.id); // Menangkap Route Parameter
+    
+    // Menggunakan Prepared Statement untuk mencari berdasarkan ID
+    const [rows] = await pool.query('SELECT * FROM menu WHERE id = ?', [menuId]);
 
-  // Jika ID tidak ditemukan 
-  if (!menuItem) {
-    return res.status(404).render('404', { title: 'Menu Tidak Ditemukan' });
+    // Jika ID tidak ditemukan 
+    if (rows.length === 0) {
+      return res.status(404).render('404', { title: 'Menu Tidak Ditemukan' });
+    }
+
+    res.render('detail', {
+      title: `Detail - ${rows[0].nama}`,
+      item: rows[0]
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Terjadi kesalahan pada server.');
   }
+};
 
-  res.render('detail', {
-    title: `Detail - ${menuItem.nama}`,
-    item: menuItem
-  });
+// CREATE: Form Tambah Menu Baru
+exports.getAddForm = (req, res) => {
+  res.render('add', { title: 'Tambah Menu Baru' });
+};
+
+// CREATE: Proses Simpan Menu Baru + Alur PRG (Post-Redirect-Get)
+exports.postAddMenu = async (req, res) => {
+  try {
+    const { nama, kategori, harga, deskripsi, gambar } = req.body;
+    
+    // Menggunakan Prepared Statement untuk INSERT data
+    await pool.query(
+      'INSERT INTO menu (nama, kategori, harga, deskripsi, gambar) VALUES (?, ?, ?, ?, ?)',
+      [nama, kategori, harga, deskripsi, gambar || '/images/default.webp']
+    );
+
+    // Wajib diakhiri res.redirect() 
+    res.redirect('/');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Gagal menambahkan menu.');
+  }
+};
+
+// UPDATE: Form Edit Menu
+exports.getEditForm = async (req, res) => {
+  try {
+    const menuId = req.params.id;
+    const [rows] = await pool.query('SELECT * FROM menu WHERE id = ?', [menuId]);
+
+    if (rows.length === 0) {
+      return res.status(404).render('404', { title: 'Menu Tidak Ditemukan' });
+    }
+
+    res.render('edit', { title: 'Edit Menu', item: rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Terjadi kesalahan pada server.');
+  }
+};
+
+// UPDATE: Proses Perbarui Menu + Alur PRG (Post-Redirect-Get)
+exports.postUpdateMenu = async (req, res) => {
+  try {
+    const menuId = req.params.id;
+    const { nama, kategori, harga, deskripsi, gambar } = req.body;
+
+    // Menggunakan Prepared Statement untuk UPDATE data
+    await pool.query(
+      'UPDATE menu SET nama = ?, kategori = ?, harga = ?, deskripsi = ?, gambar = ? WHERE id = ?',
+      [nama, kategori, harga, deskripsi, gambar, menuId]
+    );
+
+    // Wajib diakhiri res.redirect() 
+    res.redirect('/');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Gagal memperbarui menu.');
+  }
+};
+
+// DELETE: Proses Hapus Menu + Alur PRG (Post-Redirect-Get)
+exports.postDeleteMenu = async (req, res) => {
+  try {
+    const menuId = req.params.id;
+
+    // Menggunakan Prepared Statement untuk DELETE data
+    await pool.query('DELETE FROM menu WHERE id = ?', [menuId]);
+
+    // Wajib diakhiri res.redirect() 
+    res.redirect('/');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Gagal menghapus menu.');
+  }
 };

@@ -6,19 +6,24 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  
- <nav>
-    <a href="/">Detail Menu</a>
-  </nav>
+  <%- include('partials/navbar') %>
 
   <div class="container">
-    <div class="card" style="max-width: 400px; margin: 0 auto;">
-      <img src="<%= item.gambar %>" alt="<%= item.nama %>" style="height: 200px;">
+    <div class="card" style="max-width: 450px; margin: 0 auto; text-align: left;">
+      <img src="<%= item.gambar %>" alt="<%= item.nama %>" style="height: 220px; object-fit: cover; width: 100%;">
       <h2><%= item.nama %></h2>
       <p><strong>Kategori:</strong> <%= item.kategori %></p>
       <p><strong>Harga:</strong> Rp <%= item.harga.toLocaleString('id-ID') %></p>
-      <p><%= item.deskripsi %></p>
-      <a href="/" class="btn" style="background-color: #6c757d;">← Kembali ke Katalog</a>
+      <p><strong>Deskripsi:</strong> <%= item.deskripsi %></p>
+      
+      <div style="margin-top: 20px; display: flex; gap: 10px;">
+        <a href="/" class="btn" style="background-color: #6c757d;">← Kembali</a>
+        <a href="/menu/edit/<%= item.id %>" class="btn" style="background-color: #ffc107; color: #000;">Edit</a>
+        
+        <form action="/menu/delete/<%= item.id %>" method="POST" style="display: inline;" onsubmit="return confirm('Yakin mau hapus?');">
+          <button type="submit" class="btn" style="background-color: #dc3545; border: none; cursor: pointer;">Hapus</button>
+        </form>
+      </div>
     </div>
   </div>
 

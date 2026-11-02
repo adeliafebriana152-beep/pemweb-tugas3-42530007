@@ -9,6 +9,9 @@ const PORT = 3000;
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Middleware untuk membaca data dari form HTML (POST body)
+app.use(express.urlencoded({ extended: true }));
+
 // Middleware Static Files untuk CSS 
 app.use(express.static(path.join(__dirname, 'public')));
 

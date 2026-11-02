@@ -3,10 +3,29 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "dependencies": {
-    "ejs": "^3.1.9",
-    "express": "^4.19.2"
+    "dotenv": "^18.0.9",
+    "ejs": "^3.1.10",
+    "express": "^4.22.3",
+    "mysql2": "^3.24.6"
+  },
+  "description": "Aplikasi web katalog menu interaktif untuk **Sore di Bali Cafe** yang dibangun menggunakan **Node.js**, **Express.js**, dan template engine **EJS (Embedded JavaScript)**. Proyek ini dibuat untuk memenuhi Tugas Pemrograman Web.\r ---",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adeliafebriana152-beep/pemweb-tugas3-42530007.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/adeliafebriana152-beep/pemweb-tugas3-42530007/issues"
+  },
+  "homepage": "https://github.com/adeliafebriana152-beep/pemweb-tugas3-42530007#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }
